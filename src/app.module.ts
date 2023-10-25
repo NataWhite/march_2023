@@ -36,6 +36,6 @@ import { UserService } from './user/user.service';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, UserService],
+  providers: [AppService],
 })
 export class AppModule {}

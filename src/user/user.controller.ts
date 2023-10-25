@@ -10,8 +10,12 @@ import {
   Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserCreateProfileDto } from './dto/user.dto';
+import {UserCreateProfileDto, UserCreateResponse} from './dto/user.dto';
+import {ApiExtraModels, ApiResponse, ApiTags} from "@nestjs/swagger";
+import {UserEntity} from "../database/entities/user.entity";
 
+@ApiTags('User')
+@ApiExtraModels(UserCreateResponse)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -25,21 +29,20 @@ export class UserController {
     return this.userService.getOneUser(param.userId);
   }
 
-  @Post(':id')
+  @ApiResponse({ status: HttpStatus.CREATED, type: UserEntity })
+  @Post('create')
+  async createUserProfile(@Body() body: UserCreateProfileDto, @Res() res: any) {
+    return res
+        .status(HttpStatus.CREATED)
+        .json(await this.userService.createUser(body));
+  }
+
+  @Post('/address/:id')
   async addUserAddress() {}
 
-  @Patch(':id')
+  @Post('/city/:id')
   async updateUserData() {}
 
   @Delete(':id')
   async deleteUserAccount() {}
-
-  @Post('create')
-  async createUserProfile(@Body() body: UserCreateProfileDto, @Res() res: any) {
-    console.log(12);
-    // return this.userService.createUser(body);
-    return res
-      .status(HttpStatus.CREATED)
-      .json(this.userService.createUser(body));
-  }
 }
