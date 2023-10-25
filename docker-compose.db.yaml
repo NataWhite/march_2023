@@ -1,0 +1,16 @@
+version: '3.5'
+
+services:
+  march-2023-postgres:
+    image: postgis/postgis
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: march-2023
+    volumes:
+      - march-2023-db:/var/lib/postgresql/march-2023
+
+volumes:
+  march-2023-db:
