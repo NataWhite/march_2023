@@ -1,31 +1,24 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { CreatedUpdatedModel } from './common/created-updated.model';
-import {ApiProperty} from "@nestjs/swagger";
 
 @Entity('user')
 export class UserEntity extends CreatedUpdatedModel {
-  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty()
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   userName: string;
 
-  @ApiProperty()
-  @Column({ type: 'text', nullable: false, unique: true })
+  @Column({ type: 'text', unique: true })
   email: string;
 
-  @ApiProperty()
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   city: string;
 
-  @ApiProperty()
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: true })
   age: number;
 
-  @ApiProperty()
-  @Column({ type: 'boolean', nullable: false })
+  @Column({ type: 'boolean', nullable: true })
   status: boolean;
 }
