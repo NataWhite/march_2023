@@ -29,10 +29,12 @@ export class UserService {
       throw new BadRequestException('User already exist');
     }
     const newUser = this.userRepository.create(dto);
+    console.log(newUser);
     if (!dto.city) {
       newUser.city = 'Odessa';
     }
-    return await this.userRepository.save(newUser);
+    await this.userRepository.save(newUser);
+    return newUser;
   }
 
   public async getUserById(userId: string): Promise<UserEntity> {

@@ -1,4 +1,5 @@
-import { IsEnum, IsOptional } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 import { PaginationQueryDto } from '../../../../common/dto/pagination.query.dto';
 import { OrderEnum } from '../../../../common/enum/order.enum';
@@ -12,4 +13,9 @@ export class UserListQueryRequestDto extends PaginationQueryDto {
   @IsEnum(UserListOrderFieldEnum)
   @IsOptional()
   orderBy?: UserListOrderFieldEnum = UserListOrderFieldEnum.createdAt;
+
+  @Transform(({ value }) => value.toLowerCase())
+  @IsString()
+  @IsOptional()
+  search?: string;
 }

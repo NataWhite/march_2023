@@ -26,6 +26,12 @@ export class UserRepository extends Repository<UserEntity> {
         break;
     }
 
+    if (query.search) {
+      queryBuilder.andWhere('LOWER(user.userName) LIKE :search', {
+        search: `%${query.search}%`,
+      });
+    }
+
     queryBuilder.limit(query.limit);
     queryBuilder.offset(query.offset);
 
