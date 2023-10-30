@@ -19,6 +19,10 @@ export class UserCreateRequestDto {
   @IsNotEmpty()
   email: string;
 
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
   @Transform(({ value }) => value.trim())
   @IsString()
   city: string;

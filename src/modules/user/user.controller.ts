@@ -9,7 +9,9 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { UserCreateRequestDto } from './dto/request/user-create.request.dto';
@@ -21,11 +23,13 @@ import { UserResponseMapper } from './user.response.mapper';
 import { UserService } from './user.service';
 
 @ApiTags('Users')
+// @UseGuards(AuthGuard())
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiOperation({ summary: 'Get list of users' })
+  @UseGuards(AuthGuard())
   @Get()
   async getAllUsers(
     @Query() query: UserListQueryRequestDto,
@@ -44,6 +48,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get user by id' })
+  @UseGuards(AuthGuard())
   @Get(':userId')
   async getUserById(
     @Param('userId') userId: string,
@@ -53,6 +58,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Update user by id' })
+  @UseGuards(AuthGuard())
   @Put(':userId')
   async updateUser(
     @Param('userId') userId: string,
@@ -67,5 +73,10 @@ export class UserController {
   @Delete(':userId')
   async deleteUser(@Param('userId') userId: string): Promise<void> {
     await this.userService.deleteUser(userId);
+  }
+
+  @Post('login')
+  async loginUser(@Body() body: any) {
+    return await this.userService.login(body);
   }
 }
