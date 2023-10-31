@@ -40,7 +40,7 @@ export class UserService {
     }
     const newUser = this.userRepository.create(dto);
     // console.log(newUser);
-    this.logger.log(newUser);
+    this.logger.log(JSON.stringify(newUser, null, 2));
     if (!dto.city) {
       newUser.city = 'Odessa';
     }
@@ -49,7 +49,11 @@ export class UserService {
   }
 
   public async getUserById(userId: string): Promise<UserEntity> {
-    return await this.findUserByIdOrException(userId);
+    await this.findUserByIdOrException(userId);
+    return await this.userRepository.findOne({
+      where: { id: userId },
+      relations: { cars: true },
+    });
   }
 
   public async updateUser(

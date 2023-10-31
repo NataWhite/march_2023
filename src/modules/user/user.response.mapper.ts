@@ -1,5 +1,6 @@
 import { IList } from '../../common/interface/list.interface';
 import { UserEntity } from '../../database/entities/user.entity';
+import { CarResponseMapper } from '../car/car.response.mapper';
 import { UserListQueryRequestDto } from './dto/request/user-list-query.request.dto';
 import { UserDetailsResponseDto } from './dto/response/user-details.response.dto';
 import {
@@ -37,6 +38,7 @@ export class UserResponseMapper {
       age: data.age,
       status: data.status,
       createdAt: data.createdAt,
+      cars: data.cars ? CarResponseMapper.toDetailsListDto(data.cars) : null,
     };
   }
 }

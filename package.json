@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start:db": "docker compose -f docker-compose.db.yaml up",
+    "start:db": "sudo docker compose -f docker-compose.db.yaml up",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -18,7 +18,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "typeorm-ts-node-commonjs --dataSource ./ormconfig.js",
+    "migration:create": "cross-var typeorm-t  s-node-commonjs migration:create ./src/database/migrations/$npm_config_name",
+    "migration:generate": "cross-var npm run typeorm -- migration:generate ./src/database/migrations/$npm_config_name",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -31,6 +36,7 @@
     "@webeleon/nestjs-redis": "^0.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "cross-var": "^1.1.0",
     "passport": "^0.6.0",
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.1",

@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import { CustomConfigService } from './config/config.service';
+import {SwaggerHelper} from "./common/helper/swagger.helper";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,9 +18,9 @@ async function bootstrap() {
     .setTitle('Okten')
     .setDescription('Bonus nest js Api example')
     .setVersion('1.0.')
-    .addTag('march-2023')
     .build();
   const document = SwaggerModule.createDocument(app, config);
+  SwaggerHelper.setDefaultResponses(document);
   SwaggerModule.setup('api', app, document);
 
   await app.listen(appConfig.app_port, () => {
