@@ -54,7 +54,6 @@ export class UserController {
     @Param('userId') userId: string,
   ): Promise<UserDetailsResponseDto> {
     const result = await this.userService.getUserById(userId);
-    console.log(result)
     return UserResponseMapper.toDetailsDto(result);
   }
 

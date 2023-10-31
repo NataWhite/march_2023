@@ -1,10 +1,5 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 
-import { IList } from '../../common/interface/list.interface';
 import { CarEntity } from '../../database/entities/car.entity';
 import { UserRepository } from '../user/user.repository';
 import { CarRepository } from './car.repository';
