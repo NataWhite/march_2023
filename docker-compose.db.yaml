@@ -12,5 +12,13 @@ services:
     volumes:
       - march-2023-db:/var/lib/postgresql/march-2023
 
+  march-2023-redis:
+    image: redis
+    ports:
+      - '6379:6379'
+    command: >
+      --user user on allcommands allkeys >pass
+    restart: unless-stopped
+
 volumes:
   march-2023-db:

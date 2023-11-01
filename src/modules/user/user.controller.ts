@@ -29,7 +29,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiOperation({ summary: 'Get list of users' })
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   @Get()
   async getAllUsers(
     @Query() query: UserListQueryRequestDto,
@@ -48,7 +48,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get user by id' })
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
   @Get(':userId')
   async getUserById(
     @Param('userId') userId: string,

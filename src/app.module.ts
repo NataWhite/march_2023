@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomConfigModule } from './config/config.module';
 import { CustomConfigService } from './config/config.service';
 import { AuthModule } from './modules/auth/auth.module';
+import { CarModule } from './modules/car/car.module';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
@@ -21,7 +22,8 @@ import { UserModule } from './modules/user/user.module';
           username: customConfigService.db_username,
           password: customConfigService.db_password,
           database: customConfigService.db_database,
-          synchronize: true,
+          synchronize: false,
+          migrationsRun: false,
           entities: [
             path.join(__dirname, 'database', '**', '*.entity{.ts,.js}'),
           ],
@@ -29,8 +31,9 @@ import { UserModule } from './modules/user/user.module';
       },
       inject: [CustomConfigService],
     }),
-    UserModule,
     AuthModule,
+    UserModule,
+    CarModule,
   ],
   controllers: [],
   providers: [],
