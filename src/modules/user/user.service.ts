@@ -7,10 +7,13 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
+import * as bcrypt from 'bcrypt';
+import { compare } from 'bcrypt';
 
 import { IList } from '../../common/interface/list.interface';
 import { UserEntity } from '../../database/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
+import { UserLoginDto } from './dto/request/user-base.request.dto';
 import { UserCreateRequestDto } from './dto/request/user-create.request.dto';
 import { UserListQueryRequestDto } from './dto/request/user-list-query.request.dto';
 import { UserUpdateRequestDto } from './dto/request/user-update.request.dto';
@@ -19,6 +22,8 @@ import { UserRepository } from './user.repository';
 @Injectable()
 export class UserService {
   private logger = new Logger();
+  private salt = 5;
+  private RedisPrefixKeyCarData = 'CarData';
   constructor(
     private readonly userRepository: UserRepository,
     private readonly authService: AuthService,
@@ -39,6 +44,8 @@ export class UserService {
       throw new BadRequestException('User already exist');
     }
     const newUser = this.userRepository.create(dto);
+    newUser['password'] = await bcrypt.hash(dto.password, this.salt);
+
     // console.log(newUser);
     this.logger.log(JSON.stringify(newUser, null, 2));
     if (!dto.city) {
@@ -78,7 +85,7 @@ export class UserService {
     return user;
   }
 
-  async login(data: any) {
+  async login(data: UserLoginDto) {
     const findUser = await this.userRepository.findOne({
       where: { email: data.email },
     });
@@ -88,11 +95,24 @@ export class UserService {
         HttpStatus.UNAUTHORIZED,
       );
     }
+
+    if (!(await bcrypt.compare(data.password, findUser.password))) {
+      throw new HttpException(
+        'Email or password is not correct',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
     const token = await this.authService.signIn({
       id: findUser.id,
     });
 
     await this.redisClient.setEx(token, 10000, token);
+    // await this.redisClient.setEx(
+    //   this.RedisPrefixKeyCarData + data.email,
+    //   10000,
+    //   token,
+    // );
 
     return { token };
   }

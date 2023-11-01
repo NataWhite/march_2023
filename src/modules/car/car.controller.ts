@@ -7,7 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put,
+  Put, UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -16,6 +16,10 @@ import { CarService } from './car.service';
 import { CarCreateRequestDto } from './dto/request/car-create.request.dto';
 import { CarUpdateRequestDto } from './dto/request/car-update.request.dto';
 import { CarDetailsResponseDto } from './dto/response/car-details.response.dto';
+import {CityDecorator} from "../../common/decorators/city.decorator";
+import {CityEnum} from "../../common/enum/city.enum";
+import {AuthGuard} from "@nestjs/passport";
+import {CityGuard} from "../../common/guards/city.guard";
 
 @ApiTags('Cars')
 @Controller('cars')
@@ -32,6 +36,8 @@ export class CarController {
   }
 
   @ApiOperation({ summary: 'Get car by id' })
+  @CityDecorator(CityEnum.LVIV)
+  @UseGuards(AuthGuard(), CityGuard)
   @Get(':carId')
   async getCarById(
     @Param('carId') carId: string,

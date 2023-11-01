@@ -14,6 +14,11 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { CityDecorator } from '../../common/decorators/city.decorator';
+import { CityEnum } from '../../common/enum/city.enum';
+import { CityGuard } from '../../common/guards/city.guard';
+import { LogoutGuard } from '../../common/guards/logout.guard';
+import { UserLoginDto } from './dto/request/user-base.request.dto';
 import { UserCreateRequestDto } from './dto/request/user-create.request.dto';
 import { UserListQueryRequestDto } from './dto/request/user-list-query.request.dto';
 import { UserUpdateRequestDto } from './dto/request/user-update.request.dto';
@@ -28,8 +33,9 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @CityDecorator(CityEnum.ODESA, CityEnum.LVIV)
+  @UseGuards(AuthGuard(), CityGuard)
   @ApiOperation({ summary: 'Get list of users' })
-  // @UseGuards(AuthGuard())
   @Get()
   async getAllUsers(
     @Query() query: UserListQueryRequestDto,
@@ -48,7 +54,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get user by id' })
-  // @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard())
   @Get(':userId')
   async getUserById(
     @Param('userId') userId: string,
@@ -76,7 +82,13 @@ export class UserController {
   }
 
   @Post('login')
-  async loginUser(@Body() body: any) {
+  async loginUser(@Body() body: UserLoginDto) {
     return await this.userService.login(body);
+  }
+
+  @Post('logout')
+  @UseGuards(AuthGuard(), LogoutGuard)
+  async logoutUser() {
+    return 'Exit user from API :)';
   }
 }
