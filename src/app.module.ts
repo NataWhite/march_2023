@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CustomConfigModule } from './config/config.module';
 import { CustomConfigService } from './config/config.service';
+import { AddressModule } from './modules/address/address.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CarModule } from './modules/car/car.module';
 import { UserModule } from './modules/user/user.module';
@@ -32,6 +33,7 @@ import { UserModule } from './modules/user/user.module';
       inject: [CustomConfigService],
     }),
     AuthModule,
+    AddressModule,
     UserModule,
     CarModule,
   ],

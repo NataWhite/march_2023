@@ -1,5 +1,12 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
+import { AddressEntity } from './address.entity';
 import { CarEntity } from './car.entity';
 import { CreatedUpdatedModel } from './common/created-updated.model';
 
@@ -17,14 +24,14 @@ export class UserEntity extends CreatedUpdatedModel {
   @Column({ type: 'text' })
   password: string;
 
-  @Column({ type: 'text' })
-  city: string;
-
   @Column({ type: 'int', nullable: true })
   age: number;
 
   @Column({ type: 'boolean', nullable: true })
   status: boolean;
+
+  @OneToOne(() => AddressEntity, (entity) => entity.user)
+  address: AddressEntity;
 
   @OneToMany(() => CarEntity, (entity) => entity.user)
   cars: CarEntity[];

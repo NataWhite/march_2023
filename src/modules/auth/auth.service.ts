@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 import { UserEntity } from '../../database/entities/user.entity';
 
@@ -10,11 +10,14 @@ export class AuthService {
   private logger = new Logger();
   constructor(
     @InjectRepository(UserEntity)
-    public readonly userRepository: Repository<UserEntity>,
+    public userRepository: Repository<UserEntity>,
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(data: any): Promise<UserEntity> {
+  async validateUser(data: any, em?: EntityManager): Promise<UserEntity> {
+    if (em) {
+      this.userRepository = em.getRepository(UserEntity);
+    }
     const user = await this.userRepository.findOne({
       where: {
         id: data.id,

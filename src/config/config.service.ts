@@ -1,35 +1,30 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
-
-import configuration from './configuration';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CustomConfigService {
-  constructor(
-    @Inject(configuration.KEY)
-    private readonly configs: ConfigType<typeof configuration>,
-  ) {}
+  constructor(private readonly configs: ConfigService) {}
 
   get app_port(): string {
-    return this.configs.app_port;
+    return this.configs.get<string>('APP_PORT');
   }
   get app_host(): string {
-    return this.configs.app_host;
+    return this.configs.get<string>('APP_HOST');
   }
 
   get db_host(): string {
-    return this.configs.db_host;
+    return this.configs.get<string>('POSTGRES_HOST');
   }
   get db_port(): number {
-    return this.configs.db_port;
+    return this.configs.get<number>('POSTGRES_PORT');
   }
   get db_username(): string {
-    return this.configs.db_username;
+    return this.configs.get<string>('POSTGRES_USERNAME');
   }
   get db_password(): string {
-    return this.configs.db_password;
+    return this.configs.get<string>('POSTGRES_PASSWORD');
   }
   get db_database(): string {
-    return this.configs.db_database;
+    return this.configs.get<string>('POSTGRES_DB');
   }
 }
