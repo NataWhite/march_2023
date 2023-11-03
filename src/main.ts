@@ -12,7 +12,7 @@ async function bootstrap() {
   const appConfig: CustomConfigService =
     app.get<CustomConfigService>(CustomConfigService);
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
   const config = new DocumentBuilder()
     .setTitle('Okten')
@@ -33,4 +33,4 @@ async function bootstrap() {
     Logger.log(`http://${appConfig.app_host}:${appConfig.app_port}/api`, 'Doc');
   });
 }
-bootstrap();
+void bootstrap();

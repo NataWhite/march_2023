@@ -14,7 +14,6 @@ import { EntityManager } from 'typeorm';
 import { IList } from '../../common/interface/list.interface';
 import { AddressEntity } from '../../database/entities/address.entity';
 import { UserEntity } from '../../database/entities/user.entity';
-import { AddressRepository } from '../address/address.repository';
 import { AuthService } from '../auth/auth.service';
 import { UserLoginDto } from './dto/request/user-base.request.dto';
 import { UserCreateRequestDto } from './dto/request/user-create.request.dto';
@@ -26,10 +25,8 @@ import { UserRepository } from './user.repository';
 export class UserService {
   private logger = new Logger();
   private salt = 5;
-  private RedisPrefixKeyCarData = 'CarData';
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly addressRepository: AddressRepository,
     private readonly authService: AuthService,
     @InjectRedisClient() private redisClient: RedisClient,
     @InjectEntityManager() private readonly entityManager: EntityManager,
@@ -53,8 +50,6 @@ export class UserService {
         throw new BadRequestException('User already exist');
       }
       const password = await bcrypt.hash(dto.password, this.salt);
-
-      await this.authService.validateUser({}, em);
 
       const user = await userRepository.save(
         userRepository.create({
@@ -112,8 +107,8 @@ export class UserService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-
-    if (!(await bcrypt.compare(data.password, findUser.password))) {
+    const isCompare = await bcrypt.compare(data.password, findUser.password);
+    if (!isCompare) {
       throw new HttpException(
         'Email or password is not correct',
         HttpStatus.UNAUTHORIZED,
