@@ -6,11 +6,13 @@ import {
   Logger,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { InjectEntityManager } from '@nestjs/typeorm';
 import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
 import * as bcrypt from 'bcrypt';
-import { compare } from 'bcrypt';
+import { EntityManager } from 'typeorm';
 
 import { IList } from '../../common/interface/list.interface';
+import { AddressEntity } from '../../database/entities/address.entity';
 import { UserEntity } from '../../database/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
 import { UserLoginDto } from './dto/request/user-base.request.dto';
@@ -23,11 +25,11 @@ import { UserRepository } from './user.repository';
 export class UserService {
   private logger = new Logger();
   private salt = 5;
-  private RedisPrefixKeyCarData = 'CarData';
   constructor(
     private readonly userRepository: UserRepository,
     private readonly authService: AuthService,
     @InjectRedisClient() private redisClient: RedisClient,
+    @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
 
   public async getAllUsers(
@@ -37,22 +39,32 @@ export class UserService {
   }
 
   public async createUser(dto: UserCreateRequestDto): Promise<UserEntity> {
-    const findUser = await this.userRepository.findOneBy({
-      email: dto.email,
-    });
-    if (findUser) {
-      throw new BadRequestException('User already exist');
-    }
-    const newUser = this.userRepository.create(dto);
-    newUser['password'] = await bcrypt.hash(dto.password, this.salt);
+    return await this.entityManager.transaction(async (em) => {
+      const userRepository = em.getRepository(UserEntity);
+      const addressRepository = em.getRepository(AddressEntity);
 
-    // console.log(newUser);
-    this.logger.log(JSON.stringify(newUser, null, 2));
-    if (!dto.city) {
-      newUser.city = 'Odessa';
-    }
-    await this.userRepository.save(newUser);
-    return newUser;
+      const findUser = await userRepository.findOneBy({
+        email: dto.email,
+      });
+      if (findUser) {
+        throw new BadRequestException('User already exist');
+      }
+      const password = await bcrypt.hash(dto.password, this.salt);
+
+      const user = await userRepository.save(
+        userRepository.create({
+          ...dto,
+          password,
+        }),
+      );
+      await addressRepository.save(addressRepository.create({ ...dto, user }));
+      this.logger.log(JSON.stringify(user, null, 2));
+
+      return await userRepository.findOne({
+        where: { id: user.id },
+        relations: { address: true },
+      });
+    });
   }
 
   public async getUserById(userId: string): Promise<UserEntity> {
@@ -95,8 +107,8 @@ export class UserService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-
-    if (!(await bcrypt.compare(data.password, findUser.password))) {
+    const isCompare = await bcrypt.compare(data.password, findUser.password);
+    if (!isCompare) {
       throw new HttpException(
         'Email or password is not correct',
         HttpStatus.UNAUTHORIZED,

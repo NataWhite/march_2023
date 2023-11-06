@@ -12,19 +12,25 @@ async function bootstrap() {
   const appConfig: CustomConfigService =
     app.get<CustomConfigService>(CustomConfigService);
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
   const config = new DocumentBuilder()
     .setTitle('Okten')
     .setDescription('Bonus nest js Api example')
     .setVersion('1.0.')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerHelper.setDefaultResponses(document);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      docExpansion: 'none',
+      persistAuthorization: true,
+    },
+  });
 
   await app.listen(appConfig.app_port, () => {
     Logger.log(`http://${appConfig.app_host}:${appConfig.app_port}/api`, 'Doc');
   });
 }
-bootstrap();
+void bootstrap();

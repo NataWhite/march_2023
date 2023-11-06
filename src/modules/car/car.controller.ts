@@ -7,19 +7,20 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put, UseGuards,
+  Put,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { CityDecorator } from '../../common/decorators/city.decorator';
+import { CityEnum } from '../../common/enum/city.enum';
+import { CityGuard } from '../../common/guards/city.guard';
 import { CarResponseMapper } from './car.response.mapper';
 import { CarService } from './car.service';
 import { CarCreateRequestDto } from './dto/request/car-create.request.dto';
 import { CarUpdateRequestDto } from './dto/request/car-update.request.dto';
 import { CarDetailsResponseDto } from './dto/response/car-details.response.dto';
-import {CityDecorator} from "../../common/decorators/city.decorator";
-import {CityEnum} from "../../common/enum/city.enum";
-import {AuthGuard} from "@nestjs/passport";
-import {CityGuard} from "../../common/guards/city.guard";
 
 @ApiTags('Cars')
 @Controller('cars')

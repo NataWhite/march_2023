@@ -5,7 +5,8 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsString, Matches,
+  IsString,
+  Matches,
 } from 'class-validator';
 
 export class UserBaseRequestDto {

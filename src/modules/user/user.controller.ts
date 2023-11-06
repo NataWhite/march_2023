@@ -12,11 +12,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CityDecorator } from '../../common/decorators/city.decorator';
 import { CityEnum } from '../../common/enum/city.enum';
-import { CityGuard } from '../../common/guards/city.guard';
 import { LogoutGuard } from '../../common/guards/logout.guard';
 import { UserLoginDto } from './dto/request/user-base.request.dto';
 import { UserCreateRequestDto } from './dto/request/user-create.request.dto';
@@ -33,8 +32,9 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiBearerAuth()
   @CityDecorator(CityEnum.ODESA, CityEnum.LVIV)
-  @UseGuards(AuthGuard(), CityGuard)
+  @UseGuards(AuthGuard())
   @ApiOperation({ summary: 'Get list of users' })
   @Get()
   async getAllUsers(
