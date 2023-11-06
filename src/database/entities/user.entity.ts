@@ -30,6 +30,9 @@ export class UserEntity extends CreatedUpdatedModel {
   @Column({ type: 'boolean', nullable: true })
   status: boolean;
 
+  @Column({ type: 'text' })
+  avatar: string;
+
   @OneToOne(() => AddressEntity, (entity) => entity.user)
   address: AddressEntity;
 

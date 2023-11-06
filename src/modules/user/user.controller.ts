@@ -8,16 +8,19 @@ import {
   Param,
   Post,
   Put,
-  Query,
+  Query, UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
 
 import { CityDecorator } from '../../common/decorators/city.decorator';
 import { CityEnum } from '../../common/enum/city.enum';
 import { LogoutGuard } from '../../common/guards/logout.guard';
-import { UserLoginDto } from './dto/request/user-base.request.dto';
+import {UserLoginDto, UserLoginGoogleDto} from './dto/request/user-base.request.dto';
 import { UserCreateRequestDto } from './dto/request/user-create.request.dto';
 import { UserListQueryRequestDto } from './dto/request/user-list-query.request.dto';
 import { UserUpdateRequestDto } from './dto/request/user-update.request.dto';
@@ -25,6 +28,7 @@ import { UserDetailsResponseDto } from './dto/response/user-details.response.dto
 import { UserListResponseDto } from './dto/response/user-list.response.dto';
 import { UserResponseMapper } from './user.response.mapper';
 import { UserService } from './user.service';
+import {editFileName, imageFileFilter} from "../../common/utils/file.upload.utils";
 
 @ApiTags('Users')
 // @UseGuards(AuthGuard())
@@ -33,6 +37,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiBearerAuth()
+  // @Roles(RoleEnum.ADMIN, RoleEnum.MANAGER)
   @CityDecorator(CityEnum.ODESA, CityEnum.LVIV)
   @UseGuards(AuthGuard())
   @ApiOperation({ summary: 'Get list of users' })
@@ -45,10 +50,23 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Create new user' })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './public',
+        filename: editFileName,
+      }),
+      fileFilter: imageFileFilter,
+    }),
+  )
   @Post()
   async createUser(
     @Body() body: UserCreateRequestDto,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<UserDetailsResponseDto> {
+    if (file) {
+      body.avatar = `public/${file.filename}`;
+    }
     const result = await this.userService.createUser(body);
     return UserResponseMapper.toDetailsDto(result);
   }
@@ -90,5 +108,10 @@ export class UserController {
   @UseGuards(AuthGuard(), LogoutGuard)
   async logoutUser() {
     return 'Exit user from API :)';
+  }
+
+  @Post('social')
+  async loginUserByGoogle(@Body() body: UserLoginGoogleDto) {
+    return await this.userService.loginSocial(body);
   }
 }

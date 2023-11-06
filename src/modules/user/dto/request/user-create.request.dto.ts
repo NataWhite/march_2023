@@ -9,4 +9,5 @@ export class UserCreateRequestDto extends PickType(UserBaseRequestDto, [
   'city',
   'age',
   'status',
+  'avatar',
 ]) {}

@@ -9,17 +9,25 @@ import {
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
 import * as bcrypt from 'bcrypt';
+import { OAuth2Client } from 'google-auth-library';
 import { EntityManager } from 'typeorm';
 
 import { IList } from '../../common/interface/list.interface';
 import { AddressEntity } from '../../database/entities/address.entity';
 import { UserEntity } from '../../database/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
-import { UserLoginDto } from './dto/request/user-base.request.dto';
+import {
+  UserLoginDto,
+  UserLoginGoogleDto,
+} from './dto/request/user-base.request.dto';
 import { UserCreateRequestDto } from './dto/request/user-create.request.dto';
 import { UserListQueryRequestDto } from './dto/request/user-list-query.request.dto';
 import { UserUpdateRequestDto } from './dto/request/user-update.request.dto';
 import { UserRepository } from './user.repository';
+
+const GOOGLE_CLIENT_ID =
+  '580333800464-fefe274bercl4oul2eq2ao8e2ktkqnqk.apps.googleusercontent.com';
+const GOOGLE_CLIENT_SECRET = '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';
 
 @Injectable()
 export class UserService {
@@ -127,5 +135,37 @@ export class UserService {
     // );
 
     return { token };
+  }
+
+  async loginSocial(data: UserLoginGoogleDto) {
+    try {
+      const oAuthClient = new OAuth2Client(
+        GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET,
+      );
+      const result = await oAuthClient.verifyIdToken({
+        idToken: data.accessToken,
+      });
+
+      const tokenPayload = result.getPayload();
+      console.log(tokenPayload);
+
+      const findUser = await this.userRepository.findOne({
+        where: { email: tokenPayload.email },
+      });
+      if (!findUser) {
+        throw new HttpException('Google auth failed', HttpStatus.UNAUTHORIZED);
+      }
+
+      const token = await this.authService.signIn({
+        id: findUser.id,
+      });
+
+      await this.redisClient.setEx(token, 10000, token);
+
+      return { token };
+    } catch (e) {
+      throw new HttpException('Google auth failed', HttpStatus.UNAUTHORIZED);
+    }
   }
 }
